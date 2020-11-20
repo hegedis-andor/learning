@@ -22,7 +22,7 @@ export class AuthorizeGuard implements CanActivate {
 
     const userRoles = user.roles;
     const requiredRoleToActivate: string[] | null = route.data.canSee;
-    const isRoleNeededForRoute = requiredRoleToActivate !== undefined;
+    const isRoleNeededForRoute = requiredRoleToActivate !== null;
     const userHasRight = isRoleNeededForRoute ? userRoles.map(role => requiredRoleToActivate.includes(role)).includes(true) : true;
     if (!userHasRight) {
       return false;
