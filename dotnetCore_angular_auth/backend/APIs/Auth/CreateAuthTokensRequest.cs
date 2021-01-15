@@ -1,6 +1,6 @@
-﻿namespace backend.Models.ViewModels
+﻿namespace backend.APIs.Auth
 {
-    public class LoginViewModel
+    public class CreateAuthTokensRequest
     {
         public string UserName { get; set; }
         public string Password { get; set; }

@@ -6,7 +6,7 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -15,21 +15,22 @@ import { AuthService } from '../services/auth.service';
   styleUrls: ['./login.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
   public loginForm: FormGroup;
   public isLoading = false;
-  public errorMessage: string;
+  public isSessionExpired: "expired" | string;
 
   constructor(
     private fb: FormBuilder,
     public authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
     private cd: ChangeDetectorRef
-  ) {}
-
-  ngOnInit(): void {
+  ) {
+    this.isSessionExpired = this.route.snapshot.paramMap.get("session");
+    const registeredUserUserName = this.router.getCurrentNavigation().extras.state?.userName;
     this.loginForm = this.fb.group({
-      UserName: ['', Validators.required],
+      UserName: [registeredUserUserName ?? '', Validators.required],
       Password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
@@ -40,18 +41,15 @@ export class LoginComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.errorMessage = null;
 
-    this.authService.login(this.loginForm.value).subscribe(
-      (response) => {
+    this.authService.requestAuthTokens(this.loginForm.value).subscribe(
+      (_) => {
         this.isLoading = false;
         this.router.navigateByUrl('/guarded-component/logged-in-user');
-
         this.cd.markForCheck();
       },
       (errorResponse: HttpErrorResponse) => {
         console.log(errorResponse)
-        this.errorMessage = errorResponse.error?.description;
         this.isLoading = false;
         this.cd.markForCheck();
       }
