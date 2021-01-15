@@ -18,7 +18,7 @@
       </mat-error>
     </mat-form-field>
 
-    <mat-error *ngIf="errorMessage">{{errorMessage}}</mat-error>
+    <mat-error *ngIf="isSessionExpired">The session expired. Please login.</mat-error>
     <button [disabled]="isLoading" type="submit" mat-flat-button color="primary">Login</button>
   </form>
 </div>

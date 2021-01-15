@@ -1,25 +1,24 @@
+using AutoMapper;
 using backend.Data;
+using backend.Data.Repositories;
 using backend.Models.Entities;
 using backend.Services;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace backend
 {
@@ -36,7 +35,8 @@ namespace backend
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
@@ -44,6 +44,8 @@ namespace backend
             services.AddIdentity<AppUser, IdentityRole>()
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>();
+
+            services.AddAutoMapper(typeof(Startup));
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -56,6 +58,19 @@ namespace backend
                 options.Password.RequiredUniqueChars = 1;
             });
 
+            var tokenValidationParameters = new TokenValidationParameters()
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidAudience = Configuration["JWT:Audiance"],
+                ValidIssuer = Configuration["JWT:Issuer"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:SecretKey"])),
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+
+            services.AddSingleton(tokenValidationParameters);
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -66,21 +81,21 @@ namespace backend
             {
                 options.SaveToken = true;
                 options.RequireHttpsMetadata = false;
-                options.TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidAudience = Configuration["JWT:Audiance"],
-                    ValidIssuer = Configuration["JWT:Issuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:SecretKey"]))
-                };
+                options.TokenValidationParameters = tokenValidationParameters;
             });
             services.AddCors();
 
-            services.AddControllers();
+            services.AddControllers().AddFluentValidation(fv => {
+                fv.RegisterValidatorsFromAssemblyContaining<Startup>();
+                fv.RunDefaultMvcValidationAfterFluentValidationExecutes = false;
+            });
+
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "backend", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "AuthBackend", Version = "v1" });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
             });
         }
 

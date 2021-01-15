@@ -15,7 +15,7 @@ namespace backend.Data
                 return; // Db already initialized
             }
 
-            // Simple user 
+            // "User" role user 
             var userRole = "User";
             await roleManager.CreateAsync(new IdentityRole(userRole));
 
@@ -23,7 +23,7 @@ namespace backend.Data
             await userManager.CreateAsync(user, "password");
             await userManager.AddToRoleAsync(user, userRole);
 
-            // Admin user 
+            // "Admin" role user 
             var adminRole = "Admin";
             await roleManager.CreateAsync(new IdentityRole(adminRole));
 

@@ -11,7 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthService } from './auth/services/auth.service';
-import { JwtService } from './auth/services/jwt.service';
+import { TokenService } from './auth/services/token.service';
 import { LoginComponent } from './auth/login/login.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
@@ -24,10 +24,16 @@ import { AdminRoleComponent } from './guarded-component/admin-role/admin-role.co
 import { AuthInterceptor } from './services/auth.interceptor';
 import { MatListModule } from '@angular/material/list';
 import { TestService } from './services/test.service';
+import { ApiEndpoints } from './config/api-endpoints';
+import { UserService } from './services/user.service';
 
 const materialModules = [
   MatInputModule, MatFormFieldModule, MatButtonModule, MatToolbarModule,
   MatMenuModule, MatTabsModule, MatListModule
+];
+
+export const httpInterceptorProviders = [
+  { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
 ];
 
 @NgModule({
@@ -47,14 +53,16 @@ const materialModules = [
     BrowserAnimationsModule,
     HttpClientModule,
 
-    ...materialModules
+    materialModules
   ],
   providers: [
     AuthService,
-    JwtService,
+    TokenService,
     AuthorizeGuard,
     TestService,
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    ApiEndpoints,
+    UserService,
+    httpInterceptorProviders
   ],
   bootstrap: [AppComponent],
 })

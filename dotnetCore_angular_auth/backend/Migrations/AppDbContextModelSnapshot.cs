@@ -149,6 +149,29 @@ namespace backend.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("backend.APIs.auth.RefreshToken", b =>
+                {
+                    b.Property<Guid>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("text");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("backend.Models.Entities.AppUser", b =>
                 {
                     b.Property<string>("Id")
