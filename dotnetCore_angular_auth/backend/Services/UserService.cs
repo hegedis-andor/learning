@@ -1,4 +1,7 @@
-﻿using backend.Models.Entities;
+﻿using AutoMapper;
+using backend.Exceptions;
+using backend.Features.users;
+using backend.Models.Entities;
 using backend.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
@@ -10,43 +13,33 @@ namespace backend.Services
     public class UserService : IUserService
     {
         private readonly UserManager<AppUser> _userManager;
-        public UserService(UserManager<AppUser> userManager)
+        private readonly IMapper _mapper;
+
+        public UserService(UserManager<AppUser> userManager, IMapper mapper)
         {
             _userManager = userManager;
+            _mapper = mapper;
         }
 
-        public async Task<IdentityResult> CreateUserAsync(RegistrationViewModel model)
+        public async Task<UserViewModel> CreateUserAsync(CreateUserRequest request)
         {
-            var user = new AppUser { UserName = model.UserName, Email = model.Email, FirstName = model.FirstName, LastName = model.LastName };
-            var identityResult = await _userManager.CreateAsync(user, model.Password);
-            if (identityResult.Succeeded)
-                await _userManager.AddToRoleAsync(user, "User");
+            var user = _mapper.Map<AppUser>(request);
+            var identityResult = await _userManager.CreateAsync(user, request.Password);
+            if (!identityResult.Succeeded)
+                throw new RequestHandlingException("User could not be added to database.", identityResult.Errors);
 
-            return identityResult;
+            await _userManager.AddToRoleAsync(user, "User");
+
+            return _mapper.Map<UserViewModel>(GetUserByUserName(request.UserName));
         }
-
         public async Task<IList<string>> GetUserRolesAsync(AppUser user)
         {
-            return await _userManager.GetRolesAsync(user); 
+            return await _userManager.GetRolesAsync(user);
         }
-
         public AppUser GetUserByUserName(string userName)
         {
             return _userManager.Users.FirstOrDefault(user => user.UserName == userName);
         }
 
-        public async Task<bool> CheckLoginCredentialsValidityAsync(LoginViewModel model)
-        {
-            var user = await _userManager.FindByNameAsync(model.UserName);
-            if (user == null)
-                return false;
-
-            return await _userManager.CheckPasswordAsync(user, model.Password);
-        }
-
-        public bool UserNameTaken(string userName)
-        {
-            return _userManager.Users.Any(user => user.UserName == userName);
-        }
     }
 }

@@ -12,7 +12,7 @@ namespace backend.Controllers
         [HttpGet("unauthorized")]
         public IActionResult GetUnauthorized()
         {
-            var data = new List<string> { "logged in user1", "logged in user2", "logged in user3" };
+            var data = new List<string> { "logged1", "logged2", "logged3" };
             return Ok(new { unauthorizedData = data });
         }
 

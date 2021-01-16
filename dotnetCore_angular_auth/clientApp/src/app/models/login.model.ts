@@ -1,4 +1,4 @@
-export interface LoginModel{
+export interface CreateAuthTokensRequest{
   UserName: string;
   Password: string;
 }

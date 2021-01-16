@@ -21,10 +21,10 @@ services:
             context: ./backend
             dockerfile: Dockerfile
         depends_on: 
-          - postgres_database
+          - database
         ports: 
           - 3000:80
-  postgres_database:
+  database:
         image: postgres:10.15-alpine
         ports:
           - 5432:5432

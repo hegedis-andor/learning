@@ -3,6 +3,8 @@ import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@
 import { AbstractControl, FormBuilder, FormControl, FormGroup, FormGroupDirective, NgForm, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { Router } from '@angular/router';
+import { RegistrationRequest } from 'src/app/models/registration.model';
+import { UserService } from 'src/app/services/user.service';
 import { AuthService } from '../services/auth.service';
 
 
@@ -34,10 +36,9 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
 export class RegistrationComponent implements OnInit {
   public registrationForm: FormGroup;
   public isLoading = false;
-  public errorMessage: string;
   errorStateMatcher = new MyErrorStateMatcher();
 
-  constructor(private fb: FormBuilder, public authService: AuthService, private router: Router, private cd: ChangeDetectorRef) {}
+  constructor(private fb: FormBuilder, public userService: UserService, private router: Router, private cd: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.registrationForm = this.fb.group({
@@ -56,17 +57,16 @@ export class RegistrationComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.errorMessage = null;
 
-    this.authService.register(this.registrationForm.value).subscribe(
-      (response) => {
+    const formData = this.registrationForm.value as RegistrationRequest;
+    this.userService.createUser(formData).subscribe(
+      (_) => {
         this.isLoading = false;
-        this.router.navigateByUrl('/guarded-component/logged-in-user');
-
+        this.router.navigate(['/login'], { state: { userName: formData.UserName } });
         this.cd.markForCheck();
       },
       (errorResponse: HttpErrorResponse) => {
-        this.errorMessage = errorResponse.error;
+        console.log(errorResponse);
         this.isLoading = false;
         this.cd.markForCheck();
       }

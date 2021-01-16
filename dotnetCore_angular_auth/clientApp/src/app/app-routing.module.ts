@@ -26,6 +26,7 @@ const routes: Routes = [
       { path: 'admin-role', component: AdminRoleComponent, canActivate: [AuthorizeGuard], data: { canSee: ['Admin'] } },
     ],
   },
+  { path: '',   redirectTo: 'login', pathMatch: 'full' },
 ];
 
 @NgModule({
