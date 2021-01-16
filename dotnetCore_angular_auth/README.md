@@ -1,7 +1,7 @@
-Backend: ASP.NET Core 5 Web API. Entityframework core 5. Identity. Issuing and validating AccessToken and using RefreshToken.
-Frontend: Angular v11 served by nginx
-Database: Postgres v10.15
-Reverse Proxy: Nginx
+Backend: ASP.NET Core 5 Web API. Entityframework core 5. Identity. Issuing and validating AccessToken and using RefreshToken.  
+Frontend: Angular v11 served by nginx  
+Database: Postgres v10.15  
+Reverse Proxy: Nginx  
 
 To run the application: (you will need docker)
 
