@@ -1,15 +1,16 @@
-Backend: ASP.NET Core 5 Web API. Entityframework core 5. Identity. Issuing and validating JWT token.  
-Frontend: Angular v11 served by nginx  
-Database: Postgres v10.15  
-Reverse proxy: nginx  
+Backend: ASP.NET Core 5 Web API. Entityframework core 5. Identity. Issuing and validating AccessToken and using RefreshToken.
+Frontend: Angular v11 served by nginx
+Database: Postgres v10.15
+Reverse Proxy: Nginx
 
 To run the application: (you will need docker)
 
 1. Download repository.
-2. Run ***docker-compose up*** where the docker-compose.yml file is located. The docker will build the images and run the services. It will display error that the database is not found.
-3. Go to the backend directory and run ***dotnet ef database update --connection "Host=localhost;Port=5432;Username=postgres;Password=admin;Database=appdb;"***. This will create the database.
-4. Where the docker-compose.yml file located run the following command: ***docker-compose down***. It will shutdown the services that was running.
-5. Run ***docker-compose up*** again and this time it will find the database.
-6. Go to ***http://localhost:80*** which will show the client app and you can register and login. 
+2. Run ***docker-compose up -d databse*** in the dotnetCore_angular_auth directory.
+3. Go to the backend directory and run (EF Core version 5 needed) ***dotnet ef database update --connection "Host=localhost;Port=5432;Username=postgres;Password=admin;Database=appdb;"*** it will create the database in the postgres service. 
+4. Run ***docker-compose up*** in the dotnetCore_angular_auth directory.
+5. Go to http://localhost:80 which will show the client app and you can register and login.
 
-There are two initial users (username:password). ***user:password*** (with user role) and ***admin:password*** (with admin role). 
+There are two initial users (username:password). user:password (with user role) and admin:password (with admin role).
+
+Disclaimer: Do not use it in production.
