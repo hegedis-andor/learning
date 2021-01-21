@@ -6,7 +6,7 @@ Reverse Proxy: Nginx
 To run the application: (you will need docker)
 
 1. Download repository.
-2. Run ***docker-compose up -d databse*** in the dotnetCore_angular_auth directory.
+2. Run ***docker-compose up -d database*** in the dotnetCore_angular_auth directory.
 3. Go to the backend directory and run (EF Core version 5 needed) ***dotnet ef database update --connection "Host=localhost;Port=5432;Username=postgres;Password=admin;Database=appdb;"*** it will create the database in the postgres service. 
 4. Run ***docker-compose up*** in the dotnetCore_angular_auth directory.
 5. Go to http://localhost:80 which will show the client app and you can register and login.
